@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hive_boxes/app.dart';
+import 'package:flutter_hive_boxes/domain/category.dart';
+import 'package:flutter_hive_boxes/domain/category_repository.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  await Hive.initFlutter();
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Hive boxes',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
-      home: const Placeholder(),
-    );
-  }
+  Hive.registerAdapter(CategoryAdapter());
+
+  final repository = await CategoryRepository.init();
+
+  runApp(App(repository: repository));
 }
