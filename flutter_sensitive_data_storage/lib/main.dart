@@ -1,11 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_sensitive_data_storage/data/credit_card_storage.dart';
+import 'package:flutter_sensitive_data_storage/data/database.dart';
+import 'package:flutter_sensitive_data_storage/domain/user_entity_repository.dart';
+import 'package:flutter_sensitive_data_storage/presentation/screens/home_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  const storage = FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true,
+    ),
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock,
+    ),
+  );
+  final db = AppDatabase();
+
+  runApp(MyApp(
+    storage: storage,
+    db: db,
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final FlutterSecureStorage storage;
+  final AppDatabase db;
+
+  const MyApp({
+    super.key,
+    required this.db,
+    required this.storage,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +41,12 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: const Placeholder(),
+      home: HomeScreen(
+        userEntityRepository: UserEntityRepository(
+          db,
+          CreditCardStorage(storage),
+        ),
+      ),
     );
   }
 }
